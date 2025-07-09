@@ -6,27 +6,25 @@ import (
 	"log/slog"
 
 	_ "github.com/lib/pq"
-
 	"github.com/qwaq-dev/macan-ai/internal/config"
+	"github.com/qwaq-dev/macan-ai/pkg/sl"
 )
 
 func InitDatabase(cfg config.Database, log *slog.Logger) (*sql.DB, error) {
-	const op = "repository.posgres.InitDatabase"
-	log.With("op", op)
-
-	connect := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
-		cfg.Host, cfg.Port, cfg.DBusername, cfg.DBname, cfg.DBpassword, cfg.SSLmode)
-
-	db, err := sql.Open("postgres", connect)
+	db, err := sql.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
+		cfg.DBhost, cfg.Port, cfg.DBusername, cfg.DBname, cfg.DBpassword, cfg.SSLMode))
 	if err != nil {
+		log.Error("Error with connecting to database", sl.Err(err))
 		return nil, err
 	}
 
 	err = db.Ping()
+
 	if err != nil {
+		log.Error("Error with pinging database", sl.Err(err))
 		return nil, err
 	}
 
-	log.Info("Database connecting successfully")
+	log.Info("Database connect successfully")
 	return db, nil
 }

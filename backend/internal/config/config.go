@@ -3,46 +3,50 @@ package config
 import (
 	"log"
 	"os"
-	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
-	Env         string `yaml:"env" env-required:"true"`
-	Http_server `yaml:"http_server"`
-	Database    `yaml:"database"`
+	Env          string `yaml:"env" env-default:"dev" env-requried:"true"`
+	JWTSecretKey string `yaml:"jwtsecretkey"`
+	Server       `yaml:"server"`
+	Database     `yaml:"database"`
+	Services     `yaml:"services""`
 }
 
-type Http_server struct {
-	Address      string        `yaml:"address"`
-	Timeout      time.Duration `yaml:"timeout"`
-	Idle_timeout time.Duration `yaml:"idle_timeout"`
+type Server struct {
+	Port string `yaml:"port" env-default:":8080"`
+}
+
+type Services struct {
+	ResumeParsingGRPCAddr string `yaml:"resume_parsing_grpc_addr" env:"RESUME_PARSING_GRPC_ADDR"`
 }
 
 type Database struct {
-	Host       string `yaml:"host" env-required:"true"`
 	Port       string `yaml:"port"`
+	DBhost     string `yaml:"host"`
 	DBname     string `yaml:"db_name"`
 	DBpassword string `yaml:"db_password"`
+	SSLMode    string `yaml:"sslmode"`
 	DBusername string `yaml:"db_username"`
-	SSLmode    string `yaml:"sslmode" env-default:"disable"`
 }
 
 func MustLoad() *Config {
 	configPath := os.Getenv("CONFIG")
+
 	if configPath == "" {
-		log.Fatalf("There is no path to config file: %s", configPath)
+		log.Fatalf("No env file")
 	}
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		log.Fatalf("There is no config file: %s", configPath)
+		log.Fatalf("Config file is not exists: %s", err.Error())
 	}
 
 	var cfg Config
 
 	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
-		log.Fatalf("Error with reading config: %s", err)
+		log.Fatalf("Cannot read config: %s", err.Error())
 	}
 
 	return &cfg

@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package resume_parsing;
+
+option go_package = "github.com/qwaq-dev/macan-ai/backend/pkg/pb";
+
+service ResumeParsingService {
+    rpc SendResumePath(ResumePath) returns (ResumeData);
+}
+
+message ResumePath {
+    string filepath = 1;
+}
+
+message FullName {
+    string firstName = 1;
+    string lastName = 2;
+}
+
+message ContactInfo {
+    string phoneNumber = 1;
+    string email = 2;
+    string githubUrl = 3;
+    string linkedinUrl = 4;
+    string personalWebsite = 5;
+}
+
+message Period {
+    string start = 1;
+    string end = 2;
+}
+
+message WorkExperience {
+    string companyName = 1;
+    string position = 2;
+    Period period = 3;
+    repeated string responsibilities = 4;
+    repeated string technologies = 5;
+}
+
+message Education {
+    string institution = 1;
+    string major = 2;
+    string degreeType = 3;
+    string period = 4;
+}
+
+message PersonalProjects {
+    string projectName = 1;
+    string period = 2;
+    string description = 3;
+    repeated string technologies = 4;
+}
+
+message AdditionalInfo {
+    int64 desiredSalary = 1;
+    bool relocationReady = 2;
+    bool remoteWorkReady = 3;
+}
+
+message ResumeData {
+    bool success = 1;
+    FullName fullName = 2;
+    ContactInfo contactInfo = 3;
+    string summary = 4;
+    repeated string skills = 5;
+    repeated WorkExperience workExperience = 6;
+    repeated Education education = 7;
+    repeated PersonalProjects projects = 8;
+    repeated string softSkills = 9;
+    AdditionalInfo additionalInfo = 10;
+}
