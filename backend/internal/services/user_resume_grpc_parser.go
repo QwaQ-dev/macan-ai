@@ -58,7 +58,7 @@ func (r *ResumeParsingClient) ParseResume(filePath string) (*pb.ResumeData, erro
 	const op = "services.ResumeParsingClient.ParseResume"
 	log := r.log.With("op", op)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second) // Устанавливаем таймаут для RPC-вызова
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	req := &pb.ResumePath{Filepath: filePath}
@@ -71,7 +71,7 @@ func (r *ResumeParsingClient) ParseResume(filePath string) (*pb.ResumeData, erro
 	}
 
 	log.Debug("Received response from Resume Parsing Service", slog.Bool("success", resp.GetSuccess()))
-	// Можно добавить проверку на !resp.GetSuccess() здесь и вернуть соответствующую ошибку
+
 	if !resp.GetSuccess() {
 		log.Warn("Resume parsing service reported failure (internal service error)", slog.String("filepath", filePath))
 		return resp, fmt.Errorf("resume parsing service reported non-successful status for file: %s", filePath)

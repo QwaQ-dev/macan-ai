@@ -4,22 +4,25 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/qwaq-dev/macan-ai/internal/repository/postgres"
 	"github.com/qwaq-dev/macan-ai/pkg/sl"
 )
 
 type UserResumeService struct {
 	log                 *slog.Logger
 	ResumeParsingClient *ResumeParsingClient
+	UserResumeRepo      *postgres.UserResumeRepo
 }
 
-func NewUserResumeService(log *slog.Logger, ResumeParsingClient *ResumeParsingClient) *UserResumeService {
+func NewUserResumeService(log *slog.Logger, ResumeParsingClient *ResumeParsingClient, userResumeRepo *postgres.UserResumeRepo) *UserResumeService {
 	return &UserResumeService{
 		log:                 log,
 		ResumeParsingClient: ResumeParsingClient,
+		UserResumeRepo:      userResumeRepo,
 	}
 }
 
-func (r *UserResumeService) UploadResume(filepath string) error {
+func (r *UserResumeService) UploadResume(userId int64, filepath string) error {
 	const op = "services.user_resume.UploadResume"
 	log := r.log.With("op", op)
 
@@ -36,11 +39,10 @@ func (r *UserResumeService) UploadResume(filepath string) error {
 		return fmt.Errorf("resume parsing service reported failure for file: %s", filepath)
 	}
 
-	log.Info("Resume successfully parsed by gRPC service",
-		slog.String("filename", filepath),
-		slog.String("fullName", fmt.Sprintf("%s %s", parsedData.GetFullName().GetFirstName(), parsedData.GetFullName().GetLastName())),
-		slog.Any("skills", parsedData.GetSkills()),
-	)
-
+	err = r.UserResumeRepo.AddResume(parsedData, int(userId))
+	if err != nil {
+		log.Error("Error with repository", sl.Err(err))
+		return err
+	}
 	return nil
 }

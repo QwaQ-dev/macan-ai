@@ -65,7 +65,8 @@ func main() {
 		}
 	}()
 
-	userResumeService := services.NewUserResumeService(log, resumeParsingClient)
+	userResumeRepo := postgres.NewUserResumeRepo(log, db)
+	userResumeService := services.NewUserResumeService(log, resumeParsingClient, userResumeRepo)
 	userResumeHandler := handlers.NewUserResumeHandler(log, userResumeService)
 
 	routes.InitRoutes(app, log, userHandler, userResumeHandler)

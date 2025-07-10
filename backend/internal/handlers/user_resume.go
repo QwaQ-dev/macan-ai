@@ -54,7 +54,7 @@ func (u *UserResumeHandler) UploadUserResume(c *fiber.Ctx) error {
 	}
 	log.Debug("Resume file saved temporarily", slog.String("filepath", filepath))
 
-	err = u.userResumeService.UploadResume(filepath)
+	err = u.userResumeService.UploadResume(13, filepath)
 	if err != nil {
 		log.Error("Error with reading resume", sl.Err(err))
 		return c.Status(500).JSON(fiber.Map{
